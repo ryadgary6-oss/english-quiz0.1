@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English Quiz</title>
+  <title>English Spelling Quiz</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,32 +22,23 @@
   </audio>
 
   <main class="container">
-    <!-- Login Screen -->
     <section id="loginScreen" class="screen active">
-      <div class="card">
-        <h1 class="quiz-title">"English Quiz"</h1>
-        <p class="subtitle">"Enter your information to begin."</p>
+      <div class="login-panel">
+        <h1 class="quiz-title">ENGLISH SPELLING QUIZ</h1>
 
         <div class="login-form">
-          <input id="studentName" type="text" placeholder='"Student Name"' autocomplete="off" />
-          <input id="studentId" type="text" placeholder='"Student ID"' autocomplete="off" />
-          <button id="startBtn" type="button" class="start-btn">"Start"</button>
+          <input id="studentName" type="text" placeholder="Enter your full name" autocomplete="off" />
+          <input id="studentId" type="text" placeholder="Enter your student ID" autocomplete="off" />
+          <button id="startBtn" type="button" class="start-btn">START</button>
         </div>
 
         <div id="loginMessage" class="message"></div>
       </div>
     </section>
 
-    <!-- Quiz Screen -->
     <section id="quizScreen" class="screen">
-      <div class="card quiz-card">
-        <div class="quiz-topbar">
-          <div id="questionCounter" class="question-counter">"Question 1 of 20"</div>
-        </div>
-
-        <div class="question-box">
-          <h2 id="questionText" class="question-text"></h2>
-        </div>
+      <div class="quiz-panel">
+        <h2 id="questionText" class="question-text"></h2>
 
         <div id="optionsContainer" class="options-container"></div>
 
@@ -60,20 +51,19 @@
       </div>
     </section>
 
-    <!-- Result Screen -->
     <section id="resultScreen" class="screen">
-      <div class="card">
-        <h2 class="result-title">"Quiz Completed"</h2>
+      <div class="result-panel">
+        <h2 class="result-title">Quiz Completed</h2>
         <div class="result-stats">
-          <p>"Score:" <span id="finalScore">0</span></p>
-          <p>"Percentage:" <span id="finalPercentage">0%</span></p>
-          <p>"Time:" <span id="finalTime">00:00:00:00</span></p>
+          <p>Score: <span id="finalScore">0</span></p>
+          <p>Percentage: <span id="finalPercentage">0%</span></p>
+          <p>Time: <span id="finalTime">00:00:00:00</span></p>
         </div>
         <p id="funMessage" class="fun-message"></p>
       </div>
     </section>
   </main>
 
-  <script src="script.js?v=1"></script>
+  <script src="script.js?v=2"></script>
 </body>
 </html>
