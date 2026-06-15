@@ -44,6 +44,7 @@ body.dark {
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -63,6 +64,7 @@ body {
   color: var(--text);
   transition: background 0.25s ease, color 0.25s ease;
   overflow-x: hidden;
+  -webkit-touch-callout: none;
 }
 
 .container {
@@ -108,7 +110,8 @@ body {
 
 .login-form input,
 .start-btn,
-.option-btn {
+.option-btn,
+.finish-btn {
   width: 100%;
   min-height: 60px;
   border: 1.8px solid var(--border);
@@ -119,6 +122,9 @@ body {
   line-height: 1.45;
   padding: 16px 18px;
   outline: none;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
   transition: transform 0.18s ease, background 0.2s ease, color 0.2s ease, font-weight 0.15s ease, opacity 0.2s ease;
 }
 
@@ -126,7 +132,8 @@ body {
   color: #7c7c85;
 }
 
-.start-btn {
+.start-btn,
+.finish-btn {
   background: var(--button-bg);
   color: var(--button-text);
   font-weight: 800;
@@ -135,9 +142,24 @@ body {
 }
 
 .start-btn:hover,
+.finish-btn:hover,
 .option-btn:hover,
 .circle-btn:hover {
   transform: translateY(-1px);
+}
+
+.start-btn:focus,
+.start-btn:active,
+.finish-btn:focus,
+.finish-btn:active,
+.option-btn:focus,
+.option-btn:active,
+.circle-btn:focus,
+.circle-btn:active,
+.theme-toggle:focus,
+.theme-toggle:active {
+  outline: none;
+  box-shadow: none;
 }
 
 .progress-wrap {
@@ -239,6 +261,8 @@ body {
   font-weight: 400;
   cursor: pointer;
   transition: transform 0.15s ease, opacity 0.2s ease, font-weight 0.15s ease;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .circle-btn:hover {
@@ -263,6 +287,10 @@ body {
   line-height: 1.7;
 }
 
+.finish-btn {
+  margin-top: 24px;
+}
+
 .message {
   min-height: 24px;
   margin-top: 16px;
@@ -285,6 +313,10 @@ body {
   place-items: center;
   cursor: pointer;
   z-index: 20;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  box-shadow: none;
 }
 
 .bulb {
@@ -292,6 +324,7 @@ body {
   width: 16px;
   height: 20px;
   display: inline-block;
+  pointer-events: none;
 }
 
 .bulb::before {
@@ -340,9 +373,11 @@ body.dark .bulb::before {
 }
 
 @keyframes blink {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.25;
   }
@@ -391,10 +426,10 @@ body.dark .bulb::before {
   animation: loadingFade 1.1s linear infinite;
 }
 
-.loading-spinner span:nth-child(1)  { transform: rotate(0deg);   animation-delay: 0s; }
-.loading-spinner span:nth-child(2)  { transform: rotate(30deg);  animation-delay: 0.09s; }
-.loading-spinner span:nth-child(3)  { transform: rotate(60deg);  animation-delay: 0.18s; }
-.loading-spinner span:nth-child(4)  { transform: rotate(90deg);  animation-delay: 0.27s; }
+.loading-spinner span:nth-child(1)  { transform: rotate(0deg); animation-delay: 0s; }
+.loading-spinner span:nth-child(2)  { transform: rotate(30deg); animation-delay: 0.09s; }
+.loading-spinner span:nth-child(3)  { transform: rotate(60deg); animation-delay: 0.18s; }
+.loading-spinner span:nth-child(4)  { transform: rotate(90deg); animation-delay: 0.27s; }
 .loading-spinner span:nth-child(5)  { transform: rotate(120deg); animation-delay: 0.36s; }
 .loading-spinner span:nth-child(6)  { transform: rotate(150deg); animation-delay: 0.45s; }
 .loading-spinner span:nth-child(7)  { transform: rotate(180deg); animation-delay: 0.54s; }
@@ -410,6 +445,7 @@ body.dark .bulb::before {
   100% {
     background: var(--loading-dim);
   }
+
   40% {
     background: var(--loading-bright);
   }
@@ -458,7 +494,8 @@ body.dark .bulb::before {
 
   .login-form input,
   .start-btn,
-  .option-btn {
+  .option-btn,
+  .finish-btn {
     min-height: 56px;
     border-radius: 16px;
     padding: 14px 16px;
@@ -524,7 +561,8 @@ body.dark .bulb::before {
 
   .login-form input,
   .start-btn,
-  .option-btn {
+  .option-btn,
+  .finish-btn {
     font-size: 0.95rem;
   }
 
