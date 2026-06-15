@@ -20,6 +20,9 @@ const quizMessage = document.getElementById("quizMessage");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 
+const progressText = document.getElementById("progressText");
+const progressFill = document.getElementById("progressFill");
+
 const finalScore = document.getElementById("finalScore");
 const finalPercentage = document.getElementById("finalPercentage");
 const finalTime = document.getElementById("finalTime");
@@ -36,6 +39,8 @@ let timerInterval = null;
 let startTime = null;
 let finalElapsedTime = "00:00:00:00";
 let typingInterval = null;
+let renderToken = 0;
+let isTransitioning = false;
 
 function showScreen(screen) {
   [loginScreen, quizScreen, resultScreen].forEach((s) => {
@@ -46,14 +51,20 @@ function showScreen(screen) {
 
 function showLoading() {
   loadingScreen.classList.remove("hidden");
+  loadingScreen.setAttribute("aria-hidden", "false");
 }
 
 function hideLoading() {
   loadingScreen.classList.add("hidden");
+  loadingScreen.setAttribute("aria-hidden", "true");
 }
 
 function setMessage(el, text) {
   el.textContent = text || "";
+}
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function formatElapsed(ms) {
@@ -146,7 +157,16 @@ function stopTypingEffect() {
   }
 }
 
-function typeText(text, speed = 60) {
+function updateProgress() {
+  const total = questions.length || 1;
+  const current = Math.min(currentQuestionIndex + 1, total);
+  const percentage = (current / total) * 100;
+
+  progressText.textContent = `Question ${current} / ${total}`;
+  progressFill.style.width = `${percentage}%`;
+}
+
+function typeText(text, speed = 60, token) {
   stopTypingEffect();
   questionText.textContent = "";
 
@@ -159,6 +179,13 @@ function typeText(text, speed = 60) {
     let i = 0;
 
     typingInterval = setInterval(() => {
+      if (token !== renderToken) {
+        clearInterval(typingInterval);
+        typingInterval = null;
+        resolve();
+        return;
+      }
+
       questionText.textContent += text.charAt(i);
       i++;
 
@@ -169,21 +196,6 @@ function typeText(text, speed = 60) {
       }
     }, speed);
   });
-}
-
-async function animateQuestionChange(text) {
-  questionText.classList.add("is-switching");
-  optionsContainer.style.opacity = "0";
-  optionsContainer.style.transform = "translateY(8px)";
-
-  await new Promise((resolve) => setTimeout(resolve, 160));
-
-  questionText.classList.remove("is-switching");
-  await typeText(text, 60);
-
-  optionsContainer.style.transition = "opacity 0.24s ease, transform 0.24s ease";
-  optionsContainer.style.opacity = "1";
-  optionsContainer.style.transform = "translateY(0)";
 }
 
 async function checkStudentEligibility(studentIdValue) {
@@ -214,48 +226,80 @@ async function fetchQuestions() {
   return data.questions || [];
 }
 
+function createOptionButton(option, index, currentToken) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "option-btn";
+  btn.textContent = `"${option}"`;
+  btn.style.animationDelay = `${index * 0.05}s`;
+
+  if (selectedAnswers[currentQuestionIndex] === option) {
+    btn.classList.add("selected");
+  }
+
+  btn.addEventListener("click", async () => {
+    if (quizFinished || isTransitioning || currentToken !== renderToken) return;
+
+    selectedAnswers[currentQuestionIndex] = option;
+
+    if (currentQuestionIndex < questions.length - 1) {
+      currentQuestionIndex++;
+      await renderQuestion();
+    } else {
+      await finishQuiz();
+    }
+  });
+
+  return btn;
+}
+
 async function renderQuestion() {
+  if (isTransitioning) return;
+
   const q = questions[currentQuestionIndex];
   if (!q) return;
 
-  const text = q.questionText || "";
+  isTransitioning = true;
+  renderToken++;
+  const currentToken = renderToken;
+
+  stopTypingEffect();
+  updateProgress();
+
+  optionsContainer.style.opacity = "0";
+  optionsContainer.style.transform = "translateY(8px)";
+  questionText.style.opacity = "0";
+  questionText.style.transform = "translateY(8px)";
+
+  await wait(140);
+
+  if (currentToken !== renderToken) {
+    isTransitioning = false;
+    return;
+  }
+
+  questionText.textContent = "";
   optionsContainer.innerHTML = "";
 
   q.options.forEach((option, index) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "option-btn";
-    btn.textContent = `"${option}"`;
-    btn.style.animationDelay = `${index * 0.05}s`;
-
-    if (selectedAnswers[currentQuestionIndex] === option) {
-      btn.classList.add("selected");
-    }
-
-    btn.addEventListener("click", () => {
-      if (quizFinished) return;
-
-      selectedAnswers[currentQuestionIndex] = option;
-      renderQuestion();
-
-      setTimeout(() => {
-        if (currentQuestionIndex < questions.length - 1) {
-          currentQuestionIndex++;
-          renderQuestion();
-        } else {
-          finishQuiz();
-        }
-      }, 260);
-    });
-
-    optionsContainer.appendChild(btn);
+    optionsContainer.appendChild(createOptionButton(option, index, currentToken));
   });
 
   prevBtn.disabled = currentQuestionIndex === 0;
   nextBtn.disabled = currentQuestionIndex === questions.length - 1;
+
   setMessage(quizMessage, "");
 
-  await animateQuestionChange(text);
+  questionText.style.opacity = "1";
+  questionText.style.transform = "translateY(0)";
+  optionsContainer.style.opacity = "1";
+  optionsContainer.style.transform = "translateY(0)";
+
+  await typeText(q.questionText || "", 60, currentToken);
+
+  if (currentToken === renderToken) {
+    isTransitioning = false;
+  }
 }
 
 function calculateScore() {
@@ -346,6 +390,7 @@ async function finishQuiz() {
     finalTime.textContent = finalElapsedTime;
     funMessage.textContent = getFunMessage(result.percentage);
 
+    await wait(350);
     showScreen(resultScreen);
   } catch (err) {
     quizFinished = false;
@@ -355,17 +400,19 @@ async function finishQuiz() {
   }
 }
 
-prevBtn.addEventListener("click", () => {
+prevBtn.addEventListener("click", async () => {
+  if (quizFinished || isTransitioning) return;
   if (currentQuestionIndex > 0) {
     currentQuestionIndex--;
-    renderQuestion();
+    await renderQuestion();
   }
 });
 
-nextBtn.addEventListener("click", () => {
+nextBtn.addEventListener("click", async () => {
+  if (quizFinished || isTransitioning) return;
   if (currentQuestionIndex < questions.length - 1) {
     currentQuestionIndex++;
-    renderQuestion();
+    await renderQuestion();
   }
 });
 
@@ -392,9 +439,12 @@ startBtn.addEventListener("click", async () => {
     selectedAnswers = new Array(questions.length).fill("");
     currentQuestionIndex = 0;
     quizFinished = false;
+    renderToken = 0;
+    isTransitioning = false;
 
     resetTimer();
     showScreen(quizScreen);
+    await wait(250);
     await renderQuestion();
     startTimer();
     safePlayMusic();
