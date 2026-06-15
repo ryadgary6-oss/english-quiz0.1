@@ -30,7 +30,6 @@ let studentId = "";
 let questions = [];
 let currentQuestionIndex = 0;
 let selectedAnswers = [];
-let quizStarted = false;
 let quizFinished = false;
 
 let timerInterval = null;
@@ -132,7 +131,6 @@ function applySavedTheme() {
 
 function toggleTheme() {
   document.body.classList.toggle("dark");
-
   localStorage.setItem(
     "quiz-theme",
     document.body.classList.contains("dark") ? "dark" : "light"
@@ -148,7 +146,7 @@ function stopTypingEffect() {
   }
 }
 
-function typeText(text, speed = 28) {
+function typeText(text, speed = 60) {
   stopTypingEffect();
   questionText.textContent = "";
 
@@ -173,8 +171,23 @@ function typeText(text, speed = 28) {
   });
 }
 
-async function checkStudentEligibility(studentId) {
-  const url = `${WEB_APP_URL}?action=checkStudent&studentId=${encodeURIComponent(studentId)}`;
+async function animateQuestionChange(text) {
+  questionText.classList.add("is-switching");
+  optionsContainer.style.opacity = "0";
+  optionsContainer.style.transform = "translateY(8px)";
+
+  await new Promise((resolve) => setTimeout(resolve, 160));
+
+  questionText.classList.remove("is-switching");
+  await typeText(text, 60);
+
+  optionsContainer.style.transition = "opacity 0.24s ease, transform 0.24s ease";
+  optionsContainer.style.opacity = "1";
+  optionsContainer.style.transform = "translateY(0)";
+}
+
+async function checkStudentEligibility(studentIdValue) {
+  const url = `${WEB_APP_URL}?action=checkStudent&studentId=${encodeURIComponent(studentIdValue)}`;
   const response = await fetch(url);
   const data = await response.json();
 
@@ -201,20 +214,19 @@ async function fetchQuestions() {
   return data.questions || [];
 }
 
-function renderQuestion() {
+async function renderQuestion() {
   const q = questions[currentQuestionIndex];
   if (!q) return;
 
   const text = q.questionText || "";
-  typeText(text, 30);
-
   optionsContainer.innerHTML = "";
 
-  q.options.forEach((option) => {
+  q.options.forEach((option, index) => {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "option-btn";
-    btn.textContent = option;
+    btn.textContent = `"${option}"`;
+    btn.style.animationDelay = `${index * 0.05}s`;
 
     if (selectedAnswers[currentQuestionIndex] === option) {
       btn.classList.add("selected");
@@ -241,8 +253,9 @@ function renderQuestion() {
 
   prevBtn.disabled = currentQuestionIndex === 0;
   nextBtn.disabled = currentQuestionIndex === questions.length - 1;
-
   setMessage(quizMessage, "");
+
+  await animateQuestionChange(text);
 }
 
 function calculateScore() {
@@ -378,12 +391,11 @@ startBtn.addEventListener("click", async () => {
 
     selectedAnswers = new Array(questions.length).fill("");
     currentQuestionIndex = 0;
-    quizStarted = true;
     quizFinished = false;
 
     resetTimer();
     showScreen(quizScreen);
-    renderQuestion();
+    await renderQuestion();
     startTimer();
     safePlayMusic();
   } catch (err) {
