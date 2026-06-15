@@ -27,6 +27,7 @@ const finalScore = document.getElementById("finalScore");
 const finalPercentage = document.getElementById("finalPercentage");
 const finalTime = document.getElementById("finalTime");
 const funMessage = document.getElementById("funMessage");
+const finishBtn = document.getElementById("finishBtn");
 
 let studentName = "";
 let studentId = "";
@@ -65,6 +66,12 @@ function setMessage(el, text) {
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function blurActiveElement() {
+  if (document.activeElement && typeof document.activeElement.blur === "function") {
+    document.activeElement.blur();
+  }
 }
 
 function formatElapsed(ms) {
@@ -127,6 +134,7 @@ function safePauseMusic() {
 
   try {
     bgMusic.pause();
+    bgMusic.currentTime = 0;
   } catch (_) {}
 }
 
@@ -141,6 +149,7 @@ function applySavedTheme() {
 }
 
 function toggleTheme() {
+  blurActiveElement();
   document.body.classList.toggle("dark");
   localStorage.setItem(
     "quiz-theme",
@@ -238,6 +247,8 @@ function createOptionButton(option, index, currentToken) {
   }
 
   btn.addEventListener("click", async () => {
+    blurActiveElement();
+
     if (quizFinished || isTransitioning || currentToken !== renderToken) return;
 
     selectedAnswers[currentQuestionIndex] = option;
@@ -373,6 +384,40 @@ function getFunMessage(percentage) {
   return "Well... at least the submit button worked.";
 }
 
+function resetQuizState() {
+  stopTypingEffect();
+  safePauseMusic();
+  resetTimer();
+
+  studentName = "";
+  studentId = "";
+  questions = [];
+  currentQuestionIndex = 0;
+  selectedAnswers = [];
+  quizFinished = false;
+  renderToken = 0;
+  isTransitioning = false;
+  finalElapsedTime = "00:00:00:00";
+
+  studentNameInput.value = "";
+  studentIdInput.value = "";
+  questionText.textContent = "";
+  optionsContainer.innerHTML = "";
+  progressText.textContent = "Question 1 / 1";
+  progressFill.style.width = "0%";
+
+  finalScore.textContent = "0";
+  finalPercentage.textContent = "0%";
+  finalTime.textContent = "00:00:00:00";
+  funMessage.textContent = "";
+
+  setMessage(loginMessage, "");
+  setMessage(quizMessage, "");
+
+  prevBtn.disabled = true;
+  nextBtn.disabled = true;
+}
+
 async function finishQuiz() {
   if (quizFinished) return;
 
@@ -401,6 +446,8 @@ async function finishQuiz() {
 }
 
 prevBtn.addEventListener("click", async () => {
+  blurActiveElement();
+
   if (quizFinished || isTransitioning) return;
   if (currentQuestionIndex > 0) {
     currentQuestionIndex--;
@@ -409,6 +456,8 @@ prevBtn.addEventListener("click", async () => {
 });
 
 nextBtn.addEventListener("click", async () => {
+  blurActiveElement();
+
   if (quizFinished || isTransitioning) return;
   if (currentQuestionIndex < questions.length - 1) {
     currentQuestionIndex++;
@@ -417,6 +466,8 @@ nextBtn.addEventListener("click", async () => {
 });
 
 startBtn.addEventListener("click", async () => {
+  blurActiveElement();
+
   studentName = studentNameInput.value.trim();
   studentId = studentIdInput.value.trim();
 
@@ -455,6 +506,12 @@ startBtn.addEventListener("click", async () => {
   }
 });
 
+finishBtn.addEventListener("click", () => {
+  blurActiveElement();
+  resetQuizState();
+  showScreen(loginScreen);
+});
+
 applySavedTheme();
-resetTimer();
+resetQuizState();
 showScreen(loginScreen);
