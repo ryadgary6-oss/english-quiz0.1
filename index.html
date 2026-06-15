@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English Quiz</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+    <span class="bulb"></span>
+  </button>
+
+  <div id="timer" class="timer">00:00:00:00</div>
+
+  <div id="loadingScreen" class="loading-screen hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <audio id="bgMusic" loop preload="auto">
+    <source src="ambient.mp3" type="audio/mpeg" />
+  </audio>
+
+  <main class="container">
+    <!-- Login Screen -->
+    <section id="loginScreen" class="screen active">
+      <div class="card">
+        <h1 class="quiz-title">"English Quiz"</h1>
+        <p class="subtitle">"Enter your information to begin."</p>
+
+        <div class="login-form">
+          <input id="studentName" type="text" placeholder='"Student Name"' autocomplete="off" />
+          <input id="studentId" type="text" placeholder='"Student ID"' autocomplete="off" />
+          <button id="startBtn" type="button" class="start-btn">"Start"</button>
+        </div>
+
+        <div id="loginMessage" class="message"></div>
+      </div>
+    </section>
+
+    <!-- Quiz Screen -->
+    <section id="quizScreen" class="screen">
+      <div class="card quiz-card">
+        <div class="quiz-topbar">
+          <div id="questionCounter" class="question-counter">"Question 1 of 20"</div>
+        </div>
+
+        <div class="question-box">
+          <h2 id="questionText" class="question-text"></h2>
+        </div>
+
+        <div id="optionsContainer" class="options-container"></div>
+
+        <div class="nav-buttons">
+          <button id="prevBtn" class="nav-btn circle-btn" type="button" aria-label="Previous Question">←</button>
+          <button id="nextBtn" class="nav-btn circle-btn" type="button" aria-label="Next Question">→</button>
+        </div>
+
+        <div id="quizMessage" class="message"></div>
+      </div>
+    </section>
+
+    <!-- Result Screen -->
+    <section id="resultScreen" class="screen">
+      <div class="card">
+        <h2 class="result-title">"Quiz Completed"</h2>
+        <div class="result-stats">
+          <p>"Score:" <span id="finalScore">0</span></p>
+          <p>"Percentage:" <span id="finalPercentage">0%</span></p>
+          <p>"Time:" <span id="finalTime">00:00:00:00</span></p>
+        </div>
+        <p id="funMessage" class="fun-message"></p>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js?v=1"></script>
+</body>
+</html>
