@@ -13,8 +13,14 @@
 
   <div id="timer" class="timer">00:00:00:00</div>
 
-  <div id="loadingScreen" class="loading-screen hidden">
-    <div class="spinner"></div>
+  <div id="loadingScreen" class="loading-screen hidden" aria-hidden="true">
+    <div class="loading-content">
+      <div class="loading-spinner" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="loading-text">LOADING</div>
+    </div>
   </div>
 
   <audio id="bgMusic" loop preload="auto">
@@ -38,6 +44,15 @@
 
     <section id="quizScreen" class="screen">
       <div class="quiz-panel">
+        <div class="progress-wrap">
+          <div class="progress-meta">
+            <span id="progressText">Question 1 / 1</span>
+          </div>
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+        </div>
+
         <h2 id="questionText" class="question-text"></h2>
 
         <div id="optionsContainer" class="options-container"></div>
@@ -64,6 +79,6 @@
     </section>
   </main>
 
-  <script src="script.js?v=2"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>
